@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WiproProjectAssignment</string>
+    <string name="no_title">No title from Server</string>
+    <string name="no_desc">No description from Server</string>
 </resources>

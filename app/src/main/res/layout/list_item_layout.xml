@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/grey_rec"
+    android:layout_margin="@dimen/dimen_5dp"
+    android:padding="@dimen/dimen_10dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/light_blue"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:text="@string/no_title" />
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvTitle"
+        android:layout_marginTop="@dimen/dimen_25dp"
+        android:layout_marginRight="@dimen/dimen_20dp"
+        android:text="@string/no_desc"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="@dimen/dimen_100dp"
+        android:layout_height="@dimen/dimen_100dp"
+        android:layout_below="@+id/tvTitle"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="-2dp"
+        android:layout_marginTop="@dimen/dimen_20dp"
+        android:layout_marginRight="@dimen/dimen_10dp"
+        android:layout_toRightOf="@+id/tvDesc"
+        android:scaleType="center"
+        android:src="@mipmap/ic_launcher"
+        android:textAppearance="?android:textAppearanceMedium" />
+</RelativeLayout>
