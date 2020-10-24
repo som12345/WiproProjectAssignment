@@ -7,13 +7,13 @@ import javax.inject.Inject
 class RemoteRepository @Inject constructor() : APICallback {
 
     @Inject
-    lateinit var network : APICall
+    lateinit var apiCall: APICall
 
     init {
         MyApplication.myComponent.inject(this)
     }
 
     override fun getCountryInfoListData(): Observable<CountryInfoListModel> {
-        return network.getCountryInfoData()
+        return apiCall.getCountryInfoData()
     }
 }
