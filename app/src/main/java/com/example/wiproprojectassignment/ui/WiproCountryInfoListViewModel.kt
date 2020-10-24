@@ -3,6 +3,7 @@ package com.example.wiproprojectassignment.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.wiproprojectassignment.di.WiproApplication
 import com.example.wiproprojectassignment.model.WiproCountryInfoListModel
 import com.example.wiproprojectassignment.remote.WiproRemoteRepository
@@ -13,12 +14,12 @@ import org.jetbrains.annotations.NotNull
 import javax.inject.Inject
 
 
-class WiproCountryInfoListViewModel(@NotNull appContext: Application) : AndroidViewModel(appContext) {
+class WiproCountryInfoListViewModel() : ViewModel() {
 
     @set:Inject
     lateinit var wiproRemoteRepository: WiproRemoteRepository
 
-    private lateinit var disposable: Disposable
+    lateinit var disposable: Disposable
 
     var list = MutableLiveData<WiproCountryInfoListModel>()
     var toastMsg = MutableLiveData<String>()

@@ -10,7 +10,7 @@ class WiproRemoteRepository @Inject constructor() : WiproAPICallback {
     lateinit var wiproApiCall: WiproAPICall
 
     init {
-        WiproApplication.wiproAppComponent.inject(this)
+        WiproApplication.wiproAppComponent?.inject(this)
     }
 
     override fun getCountryInfoListData(): Observable<WiproCountryInfoListModel> {

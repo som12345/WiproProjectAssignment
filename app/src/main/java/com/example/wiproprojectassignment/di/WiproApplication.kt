@@ -13,6 +13,6 @@ class WiproApplication : MultiDexApplication() {
     }
 
     companion object {
-        lateinit var wiproAppComponent: WiproAppComponent
+         var wiproAppComponent: WiproAppComponent? = null
     }
 }
