@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 
 object Utils {
+
     fun checkInternet(context: Context): Boolean {
         if (context == null) return false
         val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
