@@ -15,7 +15,7 @@ class WiproMainActivity : AppCompatActivity() {
         var  currentFragment = WiproDataShowFragment.newInstance()
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.frameLayout, currentFragment, "WIPRO_FRAGMENT")
+            .replace(R.id.frameLayout, currentFragment, "WIPRO_FRAGMENT")
             .commit();
     }
 

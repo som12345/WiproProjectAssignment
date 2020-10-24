@@ -74,37 +74,6 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     val positiveButtonClick = { dialog: DialogInterface, which: Int ->
        activity?.finish()
     }
-
-    /**
-     * Check internet
-     */
-    private fun isNetworkAvailable(): Boolean {
-        if (context == null) return false
-        val connectivityManager = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            if (capabilities != null) {
-                when {
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
-                        return true
-                    }
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
-                        return true
-                    }
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
-                        return true
-                    }
-                }
-            }
-        } else {
-            val activeNetworkInfo = connectivityManager.activeNetworkInfo
-            if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
-                return true
-            }
-        }
-        return false
-    }
-
     companion object {
         @JvmStatic
         fun newInstance() = WiproDataShowFragment()
@@ -120,14 +89,16 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 it,
                 Observer {
                     Log.d("result", it.title)
-                    adapterWipro = WiproCountryInfoListAdapter(activity!!, it.rows)
-                    val mLayoutManager: RecyclerView.LayoutManager =
-                        LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-                    recyclerView!!.layoutManager = mLayoutManager
-                    recyclerView!!.itemAnimator = DefaultItemAnimator()
-                    recyclerView!!.setHasFixedSize(true)
-                    recyclerView!!.adapter = adapterWipro
-                    swipeRefreshLayout!!.isRefreshing = false
+                    activity?.let {it1->it1
+                        adapterWipro = WiproCountryInfoListAdapter(it1, it.rows)
+                        val mLayoutManager: RecyclerView.LayoutManager =
+                            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+                        recyclerView?.layoutManager = mLayoutManager
+                        recyclerView?.itemAnimator = DefaultItemAnimator()
+                        recyclerView?.setHasFixedSize(true)
+                        recyclerView?.adapter = adapterWipro
+                        swipeRefreshLayout?.isRefreshing = false
+                    }
                 })
         }
 
@@ -152,12 +123,14 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
      * Show dialog
      */
     private fun showLoading() {
-        dialog = ProgressDialog(activity).apply {
-            setCanceledOnTouchOutside(false)
-            setMessage("Please wait...")
-        }
-        if (!dialog.isShowing) {
-            dialog.show()
+        activity?.let {
+            dialog = ProgressDialog(it).apply {
+                setCanceledOnTouchOutside(false)
+                setMessage("Please wait...")
+            }
+            if (!dialog.isShowing) {
+                dialog.show()
+            }
         }
     }
 
