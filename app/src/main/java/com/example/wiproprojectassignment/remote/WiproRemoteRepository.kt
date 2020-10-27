@@ -4,7 +4,7 @@ import com.example.wiproprojectassignment.model.WiproCountryInfoListModel
 import io.reactivex.Observable
 import javax.inject.Inject
 
-class WiproRemoteRepository @Inject constructor() : WiproAPICallback {
+open class WiproRemoteRepository @Inject constructor() : WiproAPICallback {
 
     @Inject
     lateinit var wiproApiCall: WiproAPICall

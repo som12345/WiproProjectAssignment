@@ -1,26 +1,30 @@
 package com.example.wiproprojectassignment
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.wiproprojectassignment.di.DaggerWiproAppComponent
 import com.example.wiproprojectassignment.di.WiproAppComponent
+import com.example.wiproprojectassignment.model.WiproCountryInfoListModel
+import com.example.wiproprojectassignment.remote.WiproRemoteRepository
 import com.example.wiproprojectassignment.ui.WiproCountryInfoListViewModel
-import io.reactivex.Scheduler
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
-import io.reactivex.internal.schedulers.ExecutorScheduler.ExecutorWorker
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
+import com.google.gson.Gson
+import io.reactivex.Observable
 import org.junit.*
+import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import java.util.concurrent.Callable
-import java.util.concurrent.Executor
+import java.nio.charset.Charset
 
 
 class WiproCountryInfoListViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
     private lateinit var myViewModel: WiproCountryInfoListViewModel
+    @Mock
+    lateinit var mRepository: WiproRemoteRepository
+    @Mock
+    lateinit var observer: Observer<WiproCountryInfoListModel>
 
 
      @Before
@@ -31,19 +35,6 @@ class WiproCountryInfoListViewModelTest {
          component.inject(myViewModel)
      }
 
-    private fun setSchedulersApiCall() {
-        val immediate: Scheduler = object : Scheduler() {
-            override fun createWorker(): Worker {
-                return ExecutorWorker(Executor { obj: Runnable -> obj.run() }, true)
-            }
-        }
-        RxJavaPlugins.setInitIoSchedulerHandler { scheduler: Callable<Scheduler?>? -> immediate }
-        RxJavaPlugins.setInitComputationSchedulerHandler { scheduler: Callable<Scheduler?>? -> immediate }
-        RxJavaPlugins.setInitNewThreadSchedulerHandler { scheduler: Callable<Scheduler?>? -> immediate }
-        RxJavaPlugins.setInitSingleSchedulerHandler { scheduler: Callable<Scheduler?>? -> immediate }
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler { scheduler: Callable<Scheduler?>? -> immediate }
-    }
-
     @Test
      fun checkViewModelNotNullTest() {
          Assert.assertNotNull(myViewModel)
@@ -52,27 +43,36 @@ class WiproCountryInfoListViewModelTest {
 
     @Test
     fun checkApiCallDataPassTest() {
-        setSchedulersApiCall()
-        myViewModel.disposable = CompositeDisposable()
-        myViewModel.fetchData()
-        Assert.assertEquals(myViewModel.list.value?.rows?.size, 14)
-        Assert.assertEquals(myViewModel.list.value?.rows?.get(0)?.title, "Beavers")
-        Assert.assertEquals(myViewModel.list.value?.rows?.get(13)?.title, "Language")
-        Assert.assertEquals(myViewModel.list.value?.rows?.get(13)?.description, "Nous parlons tous les langues importants.")
+        mockServiceResponse("wbservice_response.json")
+        Assert.assertEquals(14, myViewModel.list.value?.rows?.size)
+        Assert.assertEquals("Beavers", myViewModel.list.value?.rows?.get(0)?.title)
+        Assert.assertEquals("Language", myViewModel.list.value?.rows?.get(13)?.title)
+        Assert.assertEquals("Nous parlons tous les langues importants.", myViewModel.list.value?.rows?.get(13)?.description)
+
     }
 
     /**
-     * Did not get much time to complete this case, but indipedently its working fine
+     * Method to check api failed state
      */
     @Test
     fun checkApiCallDataFAILTest() {
-        myViewModel.disposable = CompositeDisposable()
-        RxJavaPlugins.reset()
-        RxAndroidPlugins.reset()
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler { scheduler: Callable<Scheduler?>? -> Schedulers.trampoline() }
-        RxJavaPlugins.setErrorHandler(Consumer { it })
-        myViewModel.fetchData()
-        Assert.assertEquals(myViewModel.list.value?.rows?.size, null)
+        mockServiceResponse("error_mock.json")
+        Assert.assertEquals(null, myViewModel.list.value?.rows?.size)
+    }
+
+    /**
+     * Method to mock web service response
+     */
+    private fun mockServiceResponse(jsonFileName: String) {
+        val content = this.javaClass.classLoader?.getResource(jsonFileName)?.readText(
+            Charset.forName("UTF-8")
+        )
+        val jsonModel = Gson().fromJson(content, WiproCountryInfoListModel::class.java)
+        val countryInfoListModel = MutableLiveData<WiproCountryInfoListModel>()
+        countryInfoListModel.value = jsonModel
+        Mockito.`when`(mRepository.getCountryInfoListData()).thenReturn(Observable.just(jsonModel))
+        myViewModel.list.observeForever(observer)
+        myViewModel.list.value = jsonModel
     }
 
 }

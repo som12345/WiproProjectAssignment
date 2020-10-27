@@ -2,11 +2,7 @@ package com.example.wiproprojectassignment.ui
 
 import android.app.AlertDialog
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.DialogInterface
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -44,6 +40,13 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         recyclerView = view.findViewById(R.id.recyclerView)
         swipeRefreshLayout?.setOnRefreshListener(this)
+        adapterWipro = WiproCountryInfoListAdapter(activity)
+        val mLayoutManager: RecyclerView.LayoutManager =
+            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.layoutManager = mLayoutManager
+        recyclerView?.itemAnimator = DefaultItemAnimator()
+        recyclerView?.setHasFixedSize(true)
+        recyclerView?.adapter = adapterWipro
         observeField()
         callApi()
         return view
@@ -61,18 +64,25 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         val builder = AlertDialog.Builder(activity)
         with(builder)
         {
-            setTitle("Please check your internet!")
-            setMessage("No internet")
+            setTitle(getString(R.string.please_check_internet))
+            setMessage(getString(R.string.no_internet))
             setPositiveButton(
-                "OK",
+                getString(R.string.ok_text),
                 DialogInterface.OnClickListener(function = positiveButtonClick as (DialogInterface, Int) -> Unit)
+            )
+            setNegativeButton(
+                getString(R.string.retry_text),
+                DialogInterface.OnClickListener(function = negativeButton as (DialogInterface, Int) -> Unit)
             )
             show()
         }
     }
 
-    val positiveButtonClick = { dialog: DialogInterface, which: Int ->
+    private val positiveButtonClick = { dialog: DialogInterface, which: Int ->
        activity?.finish()
+    }
+    private val negativeButton = { dialog: DialogInterface, which: Int ->
+        callApi()
     }
     companion object {
         @JvmStatic
@@ -87,18 +97,15 @@ class WiproDataShowFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         activity?.let {
             model.list.observe(
                 it,
-                Observer {
+                Observer { it ->
                     Log.d("result", it.title)
-                    activity?.let {it1->it1
-                        adapterWipro = WiproCountryInfoListAdapter(it1, it.rows)
-                        val mLayoutManager: RecyclerView.LayoutManager =
-                            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
-                        recyclerView?.layoutManager = mLayoutManager
-                        recyclerView?.itemAnimator = DefaultItemAnimator()
-                        recyclerView?.setHasFixedSize(true)
-                        recyclerView?.adapter = adapterWipro
-                        swipeRefreshLayout?.isRefreshing = false
+                    val updatedData = it.rows.toMutableList()
+                    val filterData = updatedData.filterNot { it1 ->
+                        it1.title==null && it1.description==null && it1.imageHref==null
                     }
+                    adapterWipro?.setData(filterData.toMutableList())
+                    adapterWipro?.notifyDataSetChanged()
+                    swipeRefreshLayout?.isRefreshing = false
                 })
         }
 

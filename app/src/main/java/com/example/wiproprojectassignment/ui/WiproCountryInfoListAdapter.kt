@@ -1,12 +1,12 @@
 package com.example.wiproprojectassignment.ui
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -17,9 +17,10 @@ import com.example.wiproprojectassignment.R
 import com.example.wiproprojectassignment.model.Row
 
 
-class WiproCountryInfoListAdapter(private val context: Context, itemList: List<Row>) :
+class WiproCountryInfoListAdapter(private val context: FragmentActivity?) :
     RecyclerView.Adapter<WiproCountryInfoListAdapter.ViewHolder>() {
-    private val itemList: List<Row> = itemList
+    private  var itemListRow: MutableList<Row> = mutableListOf()
+
     override fun onCreateViewHolder(
         viewGroup: ViewGroup,
         viewType: Int
@@ -29,15 +30,20 @@ class WiproCountryInfoListAdapter(private val context: Context, itemList: List<R
         return ViewHolder(view)
     }
 
+    fun setData(itemList: MutableList<Row>) {
+        this.itemListRow = itemList
+    }
+
     override fun onBindViewHolder(
         holder: ViewHolder,
         position: Int
     ) {
-        val itemList: Row = itemList[position]
-        val title: String? = itemList.title
-        val desc: String? = itemList.description
+        val itemList: Row = itemListRow[position]
+        val title: String? = itemList.title ?: "No data found!"
+        val desc: String? = itemList.description ?: "No data found!"
         val url: String? = itemList.imageHref
-        setTitleDesc(title, holder, desc)
+        holder.tvTitle.text = title
+        holder.tvDesc.text = desc
         url?.let {
             setImageLogo(it, holder)
         } ?: run {
@@ -46,57 +52,42 @@ class WiproCountryInfoListAdapter(private val context: Context, itemList: List<R
 
     }
 
-    private fun setTitleDesc(
-        title: String?,
-        holder: ViewHolder,
-        desc: String?
-    ) {
-        title?.let {
-            holder.tvTitle.text = it
-        } ?: run {
-            holder.tvTitle.text = context.getString(R.string.no_title)
-        }
-        desc?.let {
-            holder.tvDesc.text = it
-        } ?: run {
-            holder.tvDesc.text = context.getString(R.string.no_desc)
-        }
-    }
-
     private fun setImageLogo(
         url: String,
         holder: ViewHolder
     ) {
-        Glide.with(context)
-            .load(url)
-            .listener(object : RequestListener<Drawable?> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable?>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    holder.ivLogo.setImageResource(R.drawable.ic_no_img)
-                    return false
-                }
+        context?.let {
+            Glide.with(it)
+                .load(url)
+                .listener(object : RequestListener<Drawable?> {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable?>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        holder.ivLogo.setImageResource(R.drawable.ic_no_img)
+                        return false
+                    }
 
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable?>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    holder.ivLogo.setImageDrawable(resource)
-                    return false
-                }
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: Target<Drawable?>?,
+                        dataSource: DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        holder.ivLogo.setImageDrawable(resource)
+                        return false
+                    }
 
-            })
-            .into(holder.ivLogo)
+                })
+                .into(holder.ivLogo)
+        }
     }
 
     override fun getItemCount(): Int {
-        return itemList.size
+        return itemListRow.size
     }
 
     inner class ViewHolder(itemView: View) :
